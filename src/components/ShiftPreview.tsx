@@ -108,6 +108,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     shiftLogo: {
-        borderRadius: 4
+        borderRadius: 8
     }
 });
