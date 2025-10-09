@@ -62,32 +62,33 @@ export const getShiftTypeInfo = (timeStart: string, timeEnd: string): ShiftTypeI
         const [startHours] = timeStart.split(':').map(Number);
         const [endHours] = timeEnd.split(':').map(Number);
 
-        let endHoursAdjusted = endHours;
-        if (endHours < startHours) {
-            endHoursAdjusted = endHours + 24;
-        }
+        const endsNextDay = endHours < startHours;
 
-        if (startHours >= 6 && startHours < 12 && endHoursAdjusted <= 18) {
-            return {
-                emoji: '☀️',
-                name: 'Утренняя смена',
-            };
-        } else if (startHours >= 6 && startHours < 18 && endHoursAdjusted <= 24) {
-            return {
-                emoji: '🌞',
-                name: 'Дневная смена',
-            };
-        } else if (startHours >= 18 && startHours < 22) {
-            return {
-                emoji: '🌆',
-                name: 'Вечерняя смена',
-            };
-        } else if (startHours >= 22 || startHours < 6 || endHoursAdjusted > 24) {
+        if ((startHours >= 22 || startHours < 6) || endsNextDay) {
             return {
                 emoji: '🌙',
                 name: 'Ночная смена',
             };
-        } else {
+        }
+        else if (startHours >= 6 && startHours < 12 && endHours <= 14) {
+            return {
+                emoji: '☀️',
+                name: 'Утренняя смена',
+            };
+        }
+        else if (startHours >= 6 && startHours < 18 && endHours <= 22) {
+            return {
+                emoji: '🌞',
+                name: 'Дневная смена',
+            };
+        }
+        else if (startHours >= 18 && startHours < 22 && endHours <= 24) {
+            return {
+                emoji: '🌆',
+                name: 'Вечерняя смена',
+            };
+        }
+        else {
             return {
                 emoji: '⏱️',
                 name: 'Стандартная смена',
