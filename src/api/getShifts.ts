@@ -20,7 +20,7 @@ export type Shift = {
         nameGt5: string;
         nameLt5: string;
         nameOne: string;
-    };
+    }[];
     priceWorker: number;
     bonusPriceWorker: number;
     customerFeedbacksCount: string;
@@ -33,13 +33,18 @@ export type Coordinates = {
     longitude: number;
 }
 
+type ApiResponse = {
+    data: Shift[];
+    status: number;
+}
+
 const API_BASE_URL = 'https://mobile.handswork.pro/api/shifts';
 
 export async function getShifts(coordinates: Coordinates): Promise<Shift[]> {
     try {
         const { latitude, longitude } = coordinates;
 
-        const response = await axios.get<Shift[]>(
+        const response = await axios.get<ApiResponse>(
             `${API_BASE_URL}/map-list-unauthorized`,
             {
                 params: {
@@ -49,7 +54,7 @@ export async function getShifts(coordinates: Coordinates): Promise<Shift[]> {
             }
         );
 
-        return response.data;
+        return response.data.data || [];
     } catch (error) {
         if (axios.isAxiosError(error)) {
             console.error('Ошибка при получении смен:', error.message);
@@ -60,6 +65,5 @@ export async function getShifts(coordinates: Coordinates): Promise<Shift[]> {
         }
     }
 }
-
 
 export default getShifts;
