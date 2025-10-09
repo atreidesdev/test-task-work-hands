@@ -39,3 +39,43 @@ export const getDayOfWeek = (dateString: string): string => {
         return '??';
     }
 };
+
+export const getDatesBetween = (startDate: string, endDate: string): string[] => {
+    const dates: string[] = [];
+    const start = new Date(startDate.split('.').reverse().join('-'));
+    const end = new Date(endDate.split('.').reverse().join('-'));
+
+    const current = new Date(start);
+    while (current <= end) {
+        const day = String(current.getDate()).padStart(2, '0');
+        const month = String(current.getMonth() + 1).padStart(2, '0');
+        const year = current.getFullYear();
+        dates.push(`${day}.${month}.${year}`);
+        current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+};
+
+export const getCompleteDateRange = (dates: string[]): string[] => {
+    if (dates.length === 0) return [];
+
+    const sortedDates = [...dates].sort((a, b) =>
+        new Date(a.split('.').reverse().join('-')).getTime() -
+        new Date(b.split('.').reverse().join('-')).getTime()
+    );
+
+    const startDate = sortedDates[0];
+    const endDate = sortedDates[sortedDates.length - 1];
+
+    return getDatesBetween(startDate, endDate);
+};
+
+export const hasShiftsForDate = (availableDates: string[], date: string): boolean => {
+    return availableDates.includes(date);
+};
+
+export const getUniqueDatesFromShifts = (shifts: any[]): string[] => {
+    return Array.from(new Set(shifts.map(shift => shift.dateStartByCity)))
+        .sort((a, b) => new Date(a.split('.').reverse().join('-')).getTime() - new Date(b.split('.').reverse().join('-')).getTime());
+};
