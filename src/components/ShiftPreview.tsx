@@ -12,6 +12,10 @@ interface ShiftPreviewProps {
 export const ShiftPreview = ({ shift }: ShiftPreviewProps) => {
     const { timeText, durationText } = getShiftTimeAndDuration(shift.timeStartByCity, shift.timeEndByCity);
 
+    const workType = shift.workTypes && shift.workTypes.length > 0
+        ? shift.workTypes[0]
+        : { nameOne: 'Не указано' };
+
     return (
         <View style={styles.shift}>
             <View style={styles.shiftHeader}>
@@ -23,8 +27,14 @@ export const ShiftPreview = ({ shift }: ShiftPreviewProps) => {
                     style={styles.shiftLogo}
                 />
                 <View style={styles.shiftHeaderInfo}>
-                    <Text style={styles.shiftHeaderInfoName}>{shift.workTypes.nameOne}</Text>
-                    <Text style={styles.shiftHeaderInfoCompanyAddress}>{shift.companyName} • {shift.address}</Text>
+                    <Text style={styles.shiftHeaderInfoName}>{workType.nameOne}</Text>
+                    <Text
+                        style={styles.shiftHeaderInfoCompanyAddress}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                    >
+                        {shift.companyName} • {shift.address}
+                    </Text>
                 </View>
             </View>
             <View style={styles.shiftFooter}>
@@ -60,7 +70,8 @@ const styles = StyleSheet.create({
     },
     shiftHeaderInfo: {
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        flex: 1,
     },
     shiftHeaderInfoName: {
         fontWeight: "bold",
@@ -69,7 +80,9 @@ const styles = StyleSheet.create({
     shiftHeaderInfoCompanyAddress: {
         color: 'grey',
         fontSize: 12,
-        maxWidth: '100%'
+        flex: 1,
+        flexWrap: 'wrap',
+
     },
     shiftFooter: {
         display: "flex",
@@ -87,14 +100,12 @@ const styles = StyleSheet.create({
     shiftFooterTimeText: {
         fontWeight: "semibold",
         fontSize: 14,
-    }
-    ,
+    },
     shiftFooterTimeDuration: {
         color: "grey",
         fontSize: 12,
-    }
-    ,
+    },
     shiftLogo: {
         borderRadius: 4
     }
-})
+});
