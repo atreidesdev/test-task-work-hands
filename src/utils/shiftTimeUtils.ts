@@ -4,6 +4,11 @@ export type Duration = {
     totalMinutes: number;
 }
 
+export type ShiftTypeInfo = {
+    emoji: string;
+    name: string;
+}
+
 export const calculateShiftDuration = (timeStart: string, timeEnd: string): Duration => {
     try {
         const [startHours, startMinutes] = timeStart.split(':').map(Number);
@@ -42,8 +47,8 @@ export const formatDuration = (duration: Duration): string => {
         return '0 ч';
     }
 
-    const hoursText = hours > 0 ? `${hours} часов` : '';
-    const minutesText = minutes > 0 ? `${minutes} минут` : '';
+    const hoursText = hours > 0 ? `${hours} ч` : '';
+    const minutesText = minutes > 0 ? `${minutes} мин` : '';
 
     return [hoursText, minutesText].filter(Boolean).join(' ');
 };
@@ -52,7 +57,7 @@ export const formatShiftTime = (timeStart: string, timeEnd: string): string => {
     return `${timeStart}-${timeEnd}`;
 };
 
-export const getShiftTypeEmoji = (timeStart: string, timeEnd: string): string => {
+export const getShiftTypeInfo = (timeStart: string, timeEnd: string): ShiftTypeInfo => {
     try {
         const [startHours] = timeStart.split(':').map(Number);
         const [endHours] = timeEnd.split(':').map(Number);
@@ -62,19 +67,43 @@ export const getShiftTypeEmoji = (timeStart: string, timeEnd: string): string =>
             endHoursAdjusted = endHours + 24;
         }
 
-        if (startHours >= 6 && startHours < 18 && endHoursAdjusted <= 24) {
-            return '☀️';
-        } else if (startHours >= 22 || startHours < 6 || endHoursAdjusted > 24) {
-            return '🌙';
+        if (startHours >= 6 && startHours < 12 && endHoursAdjusted <= 18) {
+            return {
+                emoji: '☀️',
+                name: 'Утренняя смена',
+            };
+        } else if (startHours >= 6 && startHours < 18 && endHoursAdjusted <= 24) {
+            return {
+                emoji: '🌞',
+                name: 'Дневная смена',
+            };
         } else if (startHours >= 18 && startHours < 22) {
-            return '🌆';
+            return {
+                emoji: '🌆',
+                name: 'Вечерняя смена',
+            };
+        } else if (startHours >= 22 || startHours < 6 || endHoursAdjusted > 24) {
+            return {
+                emoji: '🌙',
+                name: 'Ночная смена',
+            };
         } else {
-            return '⏱️';
+            return {
+                emoji: '⏱️',
+                name: 'Стандартная смена',
+            };
         }
     } catch (error) {
         console.error('Ошибка при определении типа смены:', error);
-        return '⏱️';
+        return {
+            emoji: '⏱️',
+            name: 'Смена',
+        };
     }
+};
+
+export const getShiftTypeEmoji = (timeStart: string, timeEnd: string): string => {
+    return getShiftTypeInfo(timeStart, timeEnd).emoji;
 };
 
 export const getShiftTimeAndDuration = (timeStart: string, timeEnd: string) => {
@@ -82,11 +111,13 @@ export const getShiftTimeAndDuration = (timeStart: string, timeEnd: string) => {
     const timeText = formatShiftTime(timeStart, timeEnd);
     const durationText = formatDuration(duration);
     const shiftEmoji = getShiftTypeEmoji(timeStart, timeEnd);
+    const shiftTypeInfo = getShiftTypeInfo(timeStart, timeEnd);
 
     return {
         timeText,
         durationText,
         duration,
-        shiftEmoji
+        shiftEmoji,
+        shiftTypeInfo
     };
 };
