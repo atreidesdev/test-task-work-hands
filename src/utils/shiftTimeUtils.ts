@@ -52,15 +52,41 @@ export const formatShiftTime = (timeStart: string, timeEnd: string): string => {
     return `${timeStart}-${timeEnd}`;
 };
 
+export const getShiftTypeEmoji = (timeStart: string, timeEnd: string): string => {
+    try {
+        const [startHours] = timeStart.split(':').map(Number);
+        const [endHours] = timeEnd.split(':').map(Number);
+
+        let endHoursAdjusted = endHours;
+        if (endHours < startHours) {
+            endHoursAdjusted = endHours + 24;
+        }
+
+        if (startHours >= 6 && startHours < 18 && endHoursAdjusted <= 24) {
+            return '☀️';
+        } else if (startHours >= 22 || startHours < 6 || endHoursAdjusted > 24) {
+            return '🌙';
+        } else if (startHours >= 18 && startHours < 22) {
+            return '🌆';
+        } else {
+            return '⏱️';
+        }
+    } catch (error) {
+        console.error('Ошибка при определении типа смены:', error);
+        return '⏱️';
+    }
+};
+
 export const getShiftTimeAndDuration = (timeStart: string, timeEnd: string) => {
     const duration = calculateShiftDuration(timeStart, timeEnd);
     const timeText = formatShiftTime(timeStart, timeEnd);
     const durationText = formatDuration(duration);
+    const shiftEmoji = getShiftTypeEmoji(timeStart, timeEnd);
 
     return {
         timeText,
         durationText,
-        duration
+        duration,
+        shiftEmoji
     };
 };
-

@@ -10,7 +10,7 @@ interface ShiftPreviewProps {
 }
 
 export const ShiftPreview = ({ shift }: ShiftPreviewProps) => {
-    const { timeText, durationText } = getShiftTimeAndDuration(shift.timeStartByCity, shift.timeEndByCity);
+    const { timeText, durationText, shiftEmoji } = getShiftTimeAndDuration(shift.timeStartByCity, shift.timeEndByCity);
 
     const workType = shift.workTypes && shift.workTypes.length > 0
         ? shift.workTypes[0]
@@ -40,8 +40,10 @@ export const ShiftPreview = ({ shift }: ShiftPreviewProps) => {
             <View style={styles.shiftFooter}>
                 <Text style={styles.shiftFooterPrice}>{shift.priceWorker.toLocaleString('ru-RU')} ₽/задание</Text>
                 <View style={styles.shiftFooterTime}>
-                    <Text style={styles.shiftFooterTimeText}>{timeText}</Text>
-                    <Text style={styles.shiftFooterTimeDuration}>~{durationText}</Text>
+                    <Text style={styles.shiftFooterTimeText}>
+                        {timeText}
+                    </Text>
+                    <Text style={styles.shiftFooterTimeDuration}>~{durationText} {shiftEmoji} </Text>
                 </View>
             </View>
         </View>
