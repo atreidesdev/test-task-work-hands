@@ -1,7 +1,13 @@
 import React from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import { Shift } from '../api/getShifts.ts';
-import {formatDate, getDayOfWeek} from '../utils/dateUtils.ts';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Shift} from '../api/getShifts.ts';
+import {
+    formatDate,
+    getDayOfWeek,
+    getCompleteDateRange,
+    getUniqueDatesFromShifts,
+    hasShiftsForDate
+} from '../utils/dateUtils.ts';
 
 type DateScrollProps = {
     shifts: Shift[];
@@ -10,10 +16,10 @@ type DateScrollProps = {
 }
 
 export const DateScroll = ({shifts, selectedDate, onDateSelect}: DateScrollProps) => {
-    const uniqueDates = Array.from(new Set(shifts.map(shift => shift.dateStartByCity)))
-        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    const uniqueDates = getUniqueDatesFromShifts(shifts);
+    const completeDateRange = getCompleteDateRange(uniqueDates);
 
-    if (uniqueDates.length === 0) {
+    if (completeDateRange.length === 0) {
         return null;
     }
 
@@ -24,27 +30,37 @@ export const DateScroll = ({shifts, selectedDate, onDateSelect}: DateScrollProps
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {uniqueDates.map((date) => (
+                {completeDateRange.map((date) => (
                     <TouchableOpacity
                         key={date}
                         style={[
                             styles.dateButton,
-                            selectedDate === date && styles.dateButtonSelected
+                            selectedDate === date && styles.dateButtonSelected,
+                            !hasShiftsForDate(uniqueDates, date) && styles.dateButtonEmpty
                         ]}
                         onPress={() => onDateSelect(date)}
+                        disabled={!hasShiftsForDate(uniqueDates, date)}
                     >
                         <Text style={[
                             styles.dateText,
-                            selectedDate === date && styles.dateTextSelected
+                            selectedDate === date && styles.dateTextSelected,
+                            !hasShiftsForDate(uniqueDates, date) && styles.dateTextEmpty
                         ]}>
                             {formatDate(date)}
                         </Text>
                         <Text style={[
                             styles.dayText,
-                            selectedDate === date && styles.dayTextSelected
+                            selectedDate === date && styles.dayTextSelected,
+                            !hasShiftsForDate(uniqueDates, date) && styles.dayTextEmpty
                         ]}>
                             {getDayOfWeek(date)}
                         </Text>
+                        {hasShiftsForDate(uniqueDates, date) && (
+                            <View style={[
+                                styles.shiftIndicator,
+                                selectedDate === date && styles.shiftIndicatorSelected
+                            ]} />
+                        )}
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -70,9 +86,14 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         backgroundColor: '#f8f8f8',
         minWidth: 70,
+        position: 'relative',
     },
     dateButtonSelected: {
         backgroundColor: 'blue',
+    },
+    dateButtonEmpty: {
+        backgroundColor: '#f0f0f0',
+        opacity: 0.6,
     },
     dateText: {
         fontSize: 16,
@@ -82,6 +103,10 @@ const styles = StyleSheet.create({
     dateTextSelected: {
         color: 'white',
     },
+    dateTextEmpty: {
+        color: '#999',
+        fontWeight: 'normal',
+    },
     dayText: {
         fontSize: 12,
         color: '#666',
@@ -89,5 +114,20 @@ const styles = StyleSheet.create({
     },
     dayTextSelected: {
         color: 'white',
+    },
+    dayTextEmpty: {
+        color: '#999',
+    },
+    shiftIndicator: {
+        position: 'absolute',
+        top: 4,
+        right: 4,
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'green',
+    },
+    shiftIndicatorSelected: {
+        backgroundColor: 'white',
     },
 });
